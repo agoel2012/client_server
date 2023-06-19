@@ -1,3 +1,4 @@
+#include "client_lib.h"
 #include "client_server_shared.h"
 #include <arpa/inet.h>
 #include <stdio.h>
@@ -7,33 +8,38 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define CLIENT_ARGS 3
+#define CLIENT_ARGS 4
 
 int start_client(client_info_t *cv, server_info_t *sv) {
 
-    // Setup Client control plane
-    // setup_client();
+    ssize_t nbytes = 0;
+    int rc = -1;
+    // Setup Client control plane and connect to Server
+    client_ctx_t *ctx = setup_client(&(cv->ip_addr), &(sv->ip_addr));
 
-    // Connect a new connection to a server
     for (int i = 0; i < cv->iterations; i++) {
+	nbytes = tx_client(&(ctx->msgbuf));
         // Send a message request
-        // Recv a response
+	nbytes = send(ctx->fd, ctx->msgbuf, nbytes, 0);
+        // Recv a message response
+	nbytes = recv(ctx->fd, ctx->msgbuf, sizeof(msgbuf_t), 0);
+	rc = rx_client(&(ctx->msgbuf), nbytes);
     }
 
     // Teardown Client control plane
     // destroy_client();
-    return 0;
+    return (rc);
 }
 
 int main(int argc, char *argv[]) {
 
     if (argc < CLIENT_ARGS) {
-        printf("Usage: ./client <server IP:port> <client IP>\n");
+        printf("Usage: ./client <server IP:port> <client IP> <iterations>\n");
         return 1;
     }
 
     server_info_t *sv = parse_saddress_info(argv[1]);
-    client_info_t *cv = parse_caddress_info(argv[2]);
+    client_info_t *cv = parse_caddress_info(argv[2], argv[3]);
     start_client(cv, sv);
     return 0;
 }

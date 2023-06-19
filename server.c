@@ -15,7 +15,7 @@ int start_server(server_info_t *sv) {
     struct epoll_event events = {0};
     int rc = 0;
     ssize_t nbytes = 0;
-    socklen_t addrlen = sizeof(struct sockaddr_in);
+    socklen_t addrlen = 0;
     // Setup Server control plane
     server_ctx_t *ctx = setup_server(&sv->ip_addr, sv->app_port);
     API_NULL(
@@ -24,7 +24,7 @@ int start_server(server_info_t *sv) {
 
     while (!server_stop) {
         // Accept a new connection from client
-        rc = accept(ctx->fd, (struct sockaddr *)&sv->ip_addr, &addrlen);
+        rc = accept(ctx->fd, (struct sockaddr *)(&sv->peer_addr), &addrlen);
         API_STATUS(
             rc,
             {
@@ -34,7 +34,7 @@ int start_server(server_info_t *sv) {
             "Unable to accept new connection\n");
 
         // Recv a message request
-        // Send a response
+        // Send a message response
         rc = epoll_wait(ctx->epollfd, &events, 1, -1);
         if (rc == 1 && events.data.fd == ctx->fd) {
             nbytes = recv(ctx->fd, ctx->msgbuf, sizeof(msgbuf_t), 0);

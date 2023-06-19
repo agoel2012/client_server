@@ -1,3 +1,6 @@
+#ifndef CLIENT_SERVER_SHARED_H
+#define CLIENT_SERVER_SHARED_H
+
 #include <arpa/inet.h>
 #include <assert.h>
 #include <netinet/in.h>
@@ -14,6 +17,7 @@
  */
 typedef struct server_info_s {
     struct sockaddr_in ip_addr;
+    struct sockaddr_in peer_addr;
     uint16_t app_port;
     uint16_t rank;
 } server_info_t;
@@ -56,20 +60,33 @@ static inline server_info_t *parse_saddress_info(char *args) {
     port++;
     obj->app_port = (uint16_t)atoi(port);
 
-    // Test out the extracted IP and port
-    printf("IP: %s, Port: %s\n", ip, port);
-
     // Store the IP, port into sockaddr structure
     obj->ip_addr.sin_family = AF_INET;
     obj->ip_addr.sin_port = htons(obj->app_port);
     inet_aton(ip, &(obj->ip_addr.sin_addr));
+    // Extract rank from IP octet
+    obj->rank = (uint16_t)(obj->ip_addr.sin_addr.s_addr & 0x000000ff);
 
+    // Test out the extracted IP and port
+    printf("IP: %s, Port: %s, Rank: %u\n", ip, port, obj->rank);
     // Release the tmp buffer
     free(ip);
     return obj;
 }
 
-static inline client_info_t *parse_caddress_info(char *args) {
+static inline client_info_t *parse_caddress_info(char *ip, char *iterations) {
     client_info_t *obj = (client_info_t *)calloc(1, sizeof(client_info_t));
+
+    // Store the IP, port into sockaddr structure
+    obj->ip_addr.sin_family = AF_INET;
+    inet_aton(ip, &(obj->ip_addr.sin_addr));
+    // Extract rank from IP octet
+    obj->rank = (uint16_t)(obj->ip_addr.sin_addr.s_addr & 0x000000ff);
+
+    // Store the rank and iterations into obj structure
+    obj->iterations = atoi(iterations);
+    printf("IP: %s, Iterations: %s, Rank: %u\n", ip, iterations, obj->rank);
     return obj;
 }
+
+#endif /*! CLIENT_SERVER_SHARED_H */

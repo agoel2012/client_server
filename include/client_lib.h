@@ -1,5 +1,5 @@
-#ifndef SERVER_LIB_H
-#define SERVER_LIB_H
+#ifndef CLIENT_LIB_H
+#define CLIENT_LIB_H
 
 #include <netinet/in.h>
 #include <stdarg.h>
@@ -8,14 +8,13 @@
 #include <sys/types.h>
 
 /**
- * @struct server_ctx_t
- * @brief Server Connection Context Info
+ * @struct client_ctx_t
+ * @brief Client Connection Context Info
  */
-typedef struct server_ctx_s {
+typedef struct client_ctx_s {
     int fd;       //< Socket File Descriptor
-    int epollfd;  //< Epoll fd instance
-    void *msgbuf; //< Server-side message buffer
-} server_ctx_t;
+    void *msgbuf; //< Client-side message buffer
+} client_ctx_t;
 
 /**
  * @name API_STATUS_INTERNAL
@@ -37,21 +36,22 @@ typedef struct server_ctx_s {
     API_STATUS_INTERNAL(((obj) == NULL), code_block, __VA_ARGS__)
 
 /**
- * @brief Given a user-defined IP and port, setup the server
+ * @brief Given a user-defined client IP and server IP, setup the client
  * control plane
  */
-server_ctx_t *setup_server(struct sockaddr_in *addr, uint16_t port_id);
+client_ctx_t *setup_client(struct sockaddr_in *, struct sockaddr_in *);
 
 /**
- * @brief Given a user-defined msgbuf and nbytes, process the data
- * and produce outbut msgbuf (in-place) of the same size
+ * @brief Given a user-defined msgbuf, process the data
+ * and produce outbut msgbuf (in-place) and return size as output arg 
  */
-int process_server(void **buf, size_t nbytes);
+ssize_t tx_client(void **buf);
+int rx_client(void **buf, ssize_t nbytes);
 
 /**
- * @brief Given a previously allocated server context info,
- * destroy the server control plane
+ * @brief Given a previously allocated client context info,
+ * destroy the client control plane
  */
-int destroy_server(server_ctx_t *ctx);
+int destroy_client(client_ctx_t *ctx);
 
-#endif /*! SERVER_LIB_H */
+#endif /*! CLIENT_LIB_H */
