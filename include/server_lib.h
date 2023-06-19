@@ -25,8 +25,8 @@ typedef struct server_ctx_s {
 #define API_STATUS_INTERNAL(expr, code_block, ...)                             \
     do {                                                                       \
         if (expr) {                                                            \
-            code_block;                                                        \
             printf(__VA_ARGS__);                                               \
+            code_block;                                                        \
         }                                                                      \
     } while (0)
 

@@ -62,7 +62,7 @@ server_ctx_t *setup_server(struct sockaddr_in *addr, uint16_t port_id) {
         },
         "Unable to create epoll instance\n");
 
-    ev.events = EPOLLIN;
+    ev.events = EPOLLIN | EPOLLOUT;
     ev.data.fd = ctx->fd;
     rc = epoll_ctl(ctx->epollfd, EPOLL_CTL_ADD, ctx->fd, &ev);
     API_STATUS(
@@ -86,6 +86,8 @@ server_ctx_t *setup_server(struct sockaddr_in *addr, uint16_t port_id) {
         },
         "Unable to allocate server tx/rx app msg buf\n");
 
+    printf("Server Setup Completed @%s\n", inet_ntoa(addr->sin_addr));
+
     return (ctx);
 }
 
@@ -94,14 +96,16 @@ int process_server(void **buf, size_t nbytes) {
     // Print Rx on server after recv
     // Randomize Tx on server before send
     srand(time(NULL));
+    printf("\n============[RX %zu bytes START]===========\n", nbytes);
     for (i = 0; i < nbytes; i++) {
         if (i % 8 == 0) {
             printf("\n");
         }
 
-        printf("%02x \t", *(uint8_t *)(buf[i]));
-        *(uint8_t *)(buf[i]) = (rand() % 256);
+        printf("%02x \t", *(uint8_t *)(*buf + i));
+        *(uint8_t *)(*buf + i) = (rand() % 256);
     }
+    printf("\n============[RX %zu bytes END]=============\n", nbytes);
 
     return (0);
 }
