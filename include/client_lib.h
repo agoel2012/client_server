@@ -43,7 +43,7 @@ client_ctx_t *setup_client(struct sockaddr_in *, struct sockaddr_in *);
 
 /**
  * @brief Given a user-defined msgbuf, process the data
- * and produce outbut msgbuf (in-place) and return size as output arg 
+ * and produce outbut msgbuf (in-place) and return size as output arg
  */
 ssize_t tx_client(void **buf);
 int rx_client(void **buf, ssize_t nbytes);

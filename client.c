@@ -18,12 +18,12 @@ int start_client(client_info_t *cv, server_info_t *sv) {
     client_ctx_t *ctx = setup_client(&(cv->ip_addr), &(sv->ip_addr));
 
     for (int i = 0; i < cv->iterations; i++) {
-	nbytes = tx_client(&(ctx->msgbuf));
+        nbytes = tx_client(&(ctx->msgbuf));
         // Send a message request
-	nbytes = send(ctx->fd, ctx->msgbuf, nbytes, 0);
+        nbytes = send(ctx->fd, ctx->msgbuf, nbytes, 0);
         // Recv a message response
-	nbytes = recv(ctx->fd, ctx->msgbuf, sizeof(msgbuf_t), 0);
-	rc = rx_client(&(ctx->msgbuf), nbytes);
+        nbytes = recv(ctx->fd, ctx->msgbuf, sizeof(msgbuf_t), 0);
+        rc = rx_client(&(ctx->msgbuf), nbytes);
     }
 
     // Teardown Client control plane

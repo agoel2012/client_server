@@ -1,19 +1,16 @@
-#include "client_server_shared.h"
 #include "client_lib.h"
+#include "client_server_shared.h"
 #include <time.h>
 
 client_ctx_t *setup_client(struct sockaddr_in *client_addr,
-			   struct sockaddr_in *server_addr) {
+                           struct sockaddr_in *server_addr) {
 
     int rc = -1;
 
     // Allocate a connection object
     client_ctx_t *ctx = calloc(1, sizeof(client_ctx_t));
-    API_NULL(ctx,
-	{
-	    return (NULL);
-	},
-	"Unable to allocate client ctx obj\n");
+    API_NULL(
+        ctx, { return (NULL); }, "Unable to allocate client ctx obj\n");
 
     ctx->fd = socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK, 0);
     API_STATUS(
@@ -25,7 +22,8 @@ client_ctx_t *setup_client(struct sockaddr_in *client_addr,
         "Unable to open SOCK_STREAM connection\n");
 
     // Bind a connection to an client IP address
-    rc = bind(ctx->fd, (struct sockaddr *)(client_addr), sizeof(struct sockaddr_in));
+    rc = bind(ctx->fd, (struct sockaddr *)(client_addr),
+              sizeof(struct sockaddr_in));
     API_STATUS(
         rc,
         {
@@ -34,11 +32,11 @@ client_ctx_t *setup_client(struct sockaddr_in *client_addr,
             return (NULL);
         },
         "Unable to bind connection to IP address: %s\n",
-	inet_ntoa((client_addr->sin_addr)));
+        inet_ntoa((client_addr->sin_addr)));
 
     // Connect to server IP address
     rc = connect(ctx->fd, (struct sockaddr *)(server_addr),
-		 sizeof(struct sockaddr_in));
+                 sizeof(struct sockaddr_in));
     API_STATUS(
         rc,
         {
@@ -47,7 +45,7 @@ client_ctx_t *setup_client(struct sockaddr_in *client_addr,
             return (NULL);
         },
         "Unable to connect to IP address: %s\n",
-	inet_ntoa((server_addr->sin_addr)));
+        inet_ntoa((server_addr->sin_addr)));
 
     return (ctx);
 }

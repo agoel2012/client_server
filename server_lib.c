@@ -40,7 +40,7 @@ server_ctx_t *setup_server(struct sockaddr_in *addr, uint16_t port_id) {
             return (NULL);
         },
         "Unable to bind connection to IP address: %s\n",
-	inet_ntoa((addr->sin_addr)));
+        inet_ntoa((addr->sin_addr)));
     // listen for incoming requests on a connection
     rc = listen(ctx->fd, MAX_PENDING_CONNECTIONS);
     API_STATUS(
