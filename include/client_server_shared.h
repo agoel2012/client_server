@@ -1,7 +1,10 @@
+#include <arpa/inet.h>
+#include <assert.h>
 #include <netinet/in.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -25,12 +28,48 @@ typedef struct client_info_s {
     int iterations;
 } client_info_t;
 
-inline server_info_t *parse_saddress_info(char *args) {
-    // TODO: Not yet implemented
-    return NULL;
+/**
+ * @struct msgbuf_t
+ * @brief Server-side app rx/tx buffer
+ */
+typedef struct msgbuf_s {
+    char _[1024];
+} msgbuf_t;
+
+// Use : as delimiter and separate out IP address and port
+static inline server_info_t *parse_saddress_info(char *args) {
+    server_info_t *obj = (server_info_t *)calloc(1, sizeof(server_info_t));
+
+    // Find where TCP port begins
+    char *port = strstr(args, ":");
+
+    // Calculate length of IP address with dot notation
+    size_t ip_len = (port - args);
+
+    // Allocate a tmp buffer for IP address
+    char *ip = calloc(ip_len, sizeof(char));
+
+    // Copy the IP address from args
+    memcpy(ip, args, ip_len);
+
+    // Calculate TCP port from port string
+    port++;
+    obj->app_port = (uint16_t)atoi(port);
+
+    // Test out the extracted IP and port
+    printf("IP: %s, Port: %s\n", ip, port);
+
+    // Store the IP, port into sockaddr structure
+    obj->ip_addr.sin_family = AF_INET;
+    obj->ip_addr.sin_port = htons(obj->app_port);
+    inet_aton(ip, &(obj->ip_addr.sin_addr));
+
+    // Release the tmp buffer
+    free(ip);
+    return obj;
 }
 
-inline client_info_t *parse_caddress_info(char *args) {
-    // TODO: Not yet implemented
-    return NULL;
+static inline client_info_t *parse_caddress_info(char *args) {
+    client_info_t *obj = (client_info_t *)calloc(1, sizeof(client_info_t));
+    return obj;
 }
